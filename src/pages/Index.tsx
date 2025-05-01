@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -70,6 +69,10 @@ const Index = () => {
     const url = new URL(baseUrl);
     const domain = url.hostname.split(".").slice(-2).join(".");
     const base = url.hostname.split(".")[0];
+    
+    // For debugging purposes
+    console.log("Fetching from URL:", `${url.origin}/api/v2/scenarios`);
+    console.log("Using API key:", apiKey);
     
     const response = await fetch(`${url.origin}/api/v2/scenarios`, {
       headers: {
