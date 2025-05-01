@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowRight } from "lucide-react";
 
@@ -13,17 +12,15 @@ interface MakeDashboardFormProps {
 }
 
 const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
-  const [baseUrl, setBaseUrl] = useState("");
+  const [dashboardUrl, setDashboardUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
-  const [teamId, setTeamId] = useState("");
-  const [organizationId, setOrganizationId] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     
-    if (!baseUrl) {
+    if (!dashboardUrl) {
       setError("Please enter a valid Dashboard URL");
       return;
     }
@@ -33,15 +30,10 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
       return;
     }
 
-    // Check if either teamId or organizationId is provided
-    if (!teamId && !organizationId) {
-      setError("Please enter either Team ID or Organization ID");
-      return;
-    }
-
-    // Validate and format the baseUrl
+    // Parse and validate the dashboard URL
     try {
-      let formattedUrl = baseUrl;
+      // Add https:// if not present
+      let formattedUrl = dashboardUrl;
       if (!formattedUrl.startsWith("http")) {
         formattedUrl = `https://${formattedUrl}`;
       }
@@ -53,10 +45,29 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
         setError("URL must be from make.com or make.celonis.com domains");
         return;
       }
+
+      // Extract the base URL (e.g., eu1.make.com)
+      const baseUrl = url.origin;
       
-      onSubmit(formattedUrl, apiKey, teamId, organizationId);
+      // Extract organization ID from URL path if present
+      // Pattern: /organization/123456/dashboard or similar
+      let organizationId = "";
+      const orgMatch = url.pathname.match(/\/organization\/(\d+)/);
+      if (orgMatch && orgMatch[1]) {
+        organizationId = orgMatch[1];
+      }
+      
+      // We don't need team ID anymore as we're extracting org ID from URL
+      const teamId = "";
+      
+      if (!organizationId) {
+        setError("Could not extract Organization ID from URL. Please use a URL like https://eu1.make.com/organization/123456/dashboard");
+        return;
+      }
+      
+      onSubmit(baseUrl, apiKey, teamId, organizationId);
     } catch (e) {
-      setError("Please enter a valid URL (e.g., https://eu1.make.com)");
+      setError("Please enter a valid URL (e.g., https://eu1.make.com/organization/123456/dashboard)");
     }
   };
 
@@ -64,7 +75,7 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
     <div>
       <h2 className="text-xl font-medium mb-4">Connect to Make</h2>
       <p className="text-gray-500 mb-6">
-        Enter your Make dashboard URL, API key, and either Team ID or Organization ID to fetch your scenarios.
+        Enter your Make dashboard URL and API key to fetch your scenarios.
       </p>
 
       {error && (
@@ -75,16 +86,16 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="baseUrl">Dashboard URL</Label>
+          <Label htmlFor="dashboardUrl">Dashboard URL</Label>
           <Input
-            id="baseUrl"
-            placeholder="https://eu1.make.com"
-            value={baseUrl}
-            onChange={(e) => setBaseUrl(e.target.value)}
+            id="dashboardUrl"
+            placeholder="https://eu1.make.com/organization/123456/dashboard"
+            value={dashboardUrl}
+            onChange={(e) => setDashboardUrl(e.target.value)}
             disabled={isLoading}
           />
           <p className="text-xs text-gray-500">
-            Example: eu1.make.com, us1.make.com, eu2.make.celonis.com
+            Example: eu1.make.com/organization/123456/dashboard
           </p>
         </div>
 
@@ -100,33 +111,6 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
           />
           <p className="text-xs text-gray-500">
             Make sure your API key has all required scopes
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="teamId">Team ID</Label>
-            <Input
-              id="teamId"
-              placeholder="Enter Team ID"
-              value={teamId}
-              onChange={(e) => setTeamId(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="organizationId">Organization ID</Label>
-            <Input
-              id="organizationId"
-              placeholder="Enter Organization ID"
-              value={organizationId}
-              onChange={(e) => setOrganizationId(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
-          <p className="text-xs text-gray-500 col-span-2">
-            You must provide either Team ID or Organization ID as shown in the API documentation
           </p>
         </div>
 
