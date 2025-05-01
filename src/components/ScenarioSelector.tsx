@@ -40,7 +40,7 @@ const ScenarioSelector = ({
       <p className="text-gray-500 mb-6">
         {isLoading 
           ? "Fetching all available scenarios. This might take a moment..." 
-          : `Found ${scenarios.length} scenario${scenarios.length !== 1 ? 's' : ''} with webhook interfaces. Select one to convert to OpenAPI.`
+          : `Found ${scenarios.length} on-demand or webhook-based scenario${scenarios.length !== 1 ? 's' : ''}. Select one to convert to OpenAPI.`
         }
       </p>
 
