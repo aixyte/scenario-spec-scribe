@@ -41,16 +41,45 @@ const ConversionResult = ({ scenario, openApiSpec, onReset }: ConversionResultPr
   };
 
   const convertToYaml = (obj: any): string => {
-    // This is a very basic JSON to YAML converter for demonstration
-    // In a real implementation, use a proper YAML library like js-yaml
-    return JSON.stringify(obj, null, 2)
-      .replace(/"/g, '')
-      .replace(/,/g, '')
-      .replace(/:/g, ': ')
-      .replace(/\{/g, '')
-      .replace(/\}/g, '')
-      .replace(/\[/g, '')
-      .replace(/\]/g, '');
+    // This is a basic implementation, but it handles the OpenAPI structure
+    let yaml = '';
+    
+    // Process object recursively
+    const processObject = (obj: any, indent: number = 0): string => {
+      if (obj === null || obj === undefined) return 'null';
+      
+      const indentation = '  '.repeat(indent);
+      
+      if (typeof obj === 'string') return `"${obj.replace(/"/g, '\\"')}"`;
+      if (typeof obj === 'number' || typeof obj === 'boolean') return String(obj);
+      
+      if (Array.isArray(obj)) {
+        if (obj.length === 0) return '[]';
+        let result = '';
+        for (const item of obj) {
+          result += `${indentation}- ${processObject(item, indent + 1).trimStart()}\n`;
+        }
+        return result;
+      }
+      
+      if (typeof obj === 'object') {
+        if (Object.keys(obj).length === 0) return '{}';
+        let result = '\n';
+        for (const [key, value] of Object.entries(obj)) {
+          result += `${indentation}${key}: ${processObject(value, indent + 1)}\n`;
+        }
+        return result;
+      }
+      
+      return String(obj);
+    };
+    
+    // Process top-level properties
+    for (const [key, value] of Object.entries(obj)) {
+      yaml += `${key}: ${processObject(value, 1)}\n`;
+    }
+    
+    return yaml;
   };
 
   const copyToClipboard = () => {

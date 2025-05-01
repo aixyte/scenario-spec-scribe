@@ -22,6 +22,7 @@ export const generateOpenApiSpec = (
     paths: {
       [`/scenarios/${scenarioId}/run`]: {
         post: {
+          operationId: `runScenario${scenarioId}`,
           summary: `Run scenario ${scenario.name}`,
           description: `Execute the "${scenario.name}" scenario with ID ${scenarioId}`,
           requestBody: {
@@ -121,6 +122,7 @@ export const generateOpenApiSpec = (
       }
     },
     components: {
+      schemas: {},
       securitySchemes: {
         api_key: {
           type: 'apiKey',
