@@ -17,7 +17,14 @@ export const generateOpenApiSpec = (
     const schemaName = `${input.name}Schema`;
     
     // Set appropriate schema based on type
-    if (input.type === 'dynamicCollection' || input.type === 'collection') {
+    if (input.type === 'dynamicCollection') {
+      // Dynamic collections should be represented as objects, not arrays
+      schemas[schemaName] = {
+        type: 'object',
+        description: input.help || `${input.label || input.name} parameter`,
+        properties: {}
+      };
+    } else if (input.type === 'collection') {
       schemas[schemaName] = {
         type: 'array',
         description: input.help || `${input.label || input.name} parameter`,
@@ -39,7 +46,14 @@ export const generateOpenApiSpec = (
     const schemaName = `${output.name}Schema`;
     
     // Set appropriate schema based on type
-    if (output.type === 'dynamicCollection' || output.type === 'collection') {
+    if (output.type === 'dynamicCollection') {
+      // Dynamic collections should be represented as objects, not arrays
+      schemas[schemaName] = {
+        type: 'object',
+        description: output.help || `${output.label || output.name} output`,
+        properties: {}
+      };
+    } else if (output.type === 'collection') {
       schemas[schemaName] = {
         type: 'array',
         description: output.help || `${output.label || output.name} output`,
@@ -82,6 +96,20 @@ export const generateOpenApiSpec = (
     properties: responseOutputProperties
   };
   
+  // Generate examples based on schema types
+  const exampleData: Record<string, any> = {};
+  interfaceData.input.forEach(field => {
+    if (field.type === 'dynamicCollection') {
+      // For dynamic collections, generate an object example
+      exampleData[field.name] = field.default || {
+        // Use empty object as default example for dynamic collections
+        // Users will need to populate this with the actual expected fields
+      };
+    } else {
+      exampleData[field.name] = field.default || getDefaultValueForType(field.type);
+    }
+  });
+  
   return {
     openapi: '3.1.0',
     info: { 
@@ -115,10 +143,7 @@ export const generateOpenApiSpec = (
                   required: ['data']
                 },
                 example: {
-                  data: interfaceData.input.reduce((acc, field) => {
-                    acc[field.name] = field.default || getDefaultValueForType(field.type);
-                    return acc;
-                  }, {}),
+                  data: exampleData,
                   responsive: true
                 }
               }
@@ -206,8 +231,9 @@ const convertToJsonSchemaType = (makeType: string): string => {
       return 'object';
     case 'array':
     case 'collection':
-    case 'dynamicCollection':
       return 'array';
+    case 'dynamicCollection':
+      return 'object'; // Changed from 'array' to 'object'
     default:
       return 'string'; // Default to string for unknown types
   }
@@ -225,8 +251,9 @@ const getDefaultValueForType = (type: string): any => {
       return {};
     case 'array':
     case 'collection':
-    case 'dynamicCollection':
       return [];
+    case 'dynamicCollection':
+      return {}; // Changed from [] to {}
     default:
       return null;
   }
