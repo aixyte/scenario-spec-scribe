@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,19 +11,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [step, setStep] = useState(1);
-  const [credentials, setCredentials] = useState({ baseUrl: "", apiKey: "" });
+  const [credentials, setCredentials] = useState({ 
+    baseUrl: "", 
+    apiKey: "",
+    teamId: "",
+    organizationId: ""
+  });
   const [scenarios, setScenarios] = useState([]);
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [openApiSpec, setOpenApiSpec] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleCredentialsSubmit = async (baseUrl, apiKey) => {
+  const handleCredentialsSubmit = async (baseUrl, apiKey, teamId, organizationId) => {
     setIsLoading(true);
     try {
-      setCredentials({ baseUrl, apiKey });
+      setCredentials({ baseUrl, apiKey, teamId, organizationId });
       
       // Fetch scenarios
-      const response = await fetchScenarios(baseUrl, apiKey);
+      const response = await fetchScenarios(baseUrl, apiKey, teamId, organizationId);
       
       // Filter scenarios with interfaces
       const scenariosWithInterfaces = response.scenarios.filter(
@@ -65,21 +71,33 @@ const Index = () => {
     }
   };
 
-  const fetchScenarios = async (baseUrl, apiKey) => {
+  const fetchScenarios = async (baseUrl, apiKey, teamId, organizationId) => {
     const url = new URL(baseUrl);
     const domain = url.hostname.split(".").slice(-2).join(".");
     const base = url.hostname.split(".")[0];
     
-    // For debugging purposes
-    console.log("Fetching from URL:", `${url.origin}/api/v2/scenarios`);
-    console.log("Using API key:", apiKey);
+    // Prepare query parameters
+    const queryParams = new URLSearchParams();
+    if (teamId) {
+      queryParams.append("teamId", teamId);
+    }
+    if (organizationId) {
+      queryParams.append("organizationId", organizationId);
+    }
     
-    const response = await fetch(`${url.origin}/api/v2/scenarios`, {
-      headers: {
-        Authorization: `Token ${apiKey}`,
-        'Content-Type': 'application/json'
+    // For debugging purposes
+    console.log("Fetching from URL:", `${url.origin}/api/v2/scenarios${queryParams.toString() ? '?' + queryParams.toString() : ''}`);
+    console.log("Using API key:", `Token ${apiKey}`);
+    
+    const response = await fetch(
+      `${url.origin}/api/v2/scenarios${queryParams.toString() ? '?' + queryParams.toString() : ''}`, 
+      {
+        headers: {
+          Authorization: `Token ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
       }
-    });
+    );
     
     if (!response.ok) {
       throw new Error(`Failed to fetch scenarios: ${response.statusText}`);

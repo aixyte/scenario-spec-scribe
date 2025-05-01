@@ -8,13 +8,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowRight } from "lucide-react";
 
 interface MakeDashboardFormProps {
-  onSubmit: (baseUrl: string, apiKey: string) => void;
+  onSubmit: (baseUrl: string, apiKey: string, teamId: string, organizationId: string) => void;
   isLoading: boolean;
 }
 
 const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
   const [baseUrl, setBaseUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
+  const [teamId, setTeamId] = useState("");
+  const [organizationId, setOrganizationId] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -28,6 +30,12 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
     
     if (!apiKey) {
       setError("Please enter your API key");
+      return;
+    }
+
+    // Check if either teamId or organizationId is provided
+    if (!teamId && !organizationId) {
+      setError("Please enter either Team ID or Organization ID");
       return;
     }
 
@@ -46,7 +54,7 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
         return;
       }
       
-      onSubmit(formattedUrl, apiKey);
+      onSubmit(formattedUrl, apiKey, teamId, organizationId);
     } catch (e) {
       setError("Please enter a valid URL (e.g., https://eu1.make.com)");
     }
@@ -56,7 +64,7 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
     <div>
       <h2 className="text-xl font-medium mb-4">Connect to Make</h2>
       <p className="text-gray-500 mb-6">
-        Enter your Make dashboard URL and API key with all scopes to fetch your scenarios.
+        Enter your Make dashboard URL, API key, and either Team ID or Organization ID to fetch your scenarios.
       </p>
 
       {error && (
@@ -92,6 +100,33 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
           />
           <p className="text-xs text-gray-500">
             Make sure your API key has all required scopes
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="teamId">Team ID</Label>
+            <Input
+              id="teamId"
+              placeholder="Enter Team ID"
+              value={teamId}
+              onChange={(e) => setTeamId(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="organizationId">Organization ID</Label>
+            <Input
+              id="organizationId"
+              placeholder="Enter Organization ID"
+              value={organizationId}
+              onChange={(e) => setOrganizationId(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+          <p className="text-xs text-gray-500 col-span-2">
+            You must provide either Team ID or Organization ID as shown in the API documentation
           </p>
         </div>
 
