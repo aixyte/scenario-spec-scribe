@@ -1,1 +1,8 @@
+
 project_id = "baejswhhkmuokqczmphy"
+
+[functions.fetch-scenarios]
+verify_jwt = false
+
+[functions.fetch-scenario-interface]
+verify_jwt = false
