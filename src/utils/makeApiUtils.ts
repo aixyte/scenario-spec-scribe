@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -43,19 +44,31 @@ export const fetchScenarios = async (
   try {
     console.log("Fetching scenarios via Supabase Edge Function");
     
+    // Show a loading toast for potentially longer operation
+    const loadingToast = toast.loading("Fetching all scenarios. This might take a moment...");
+    
     const { data, error } = await supabase.functions.invoke("fetch-scenarios", {
       body: {
         baseUrl,
         apiKey,
         teamId,
-        organizationId
+        organizationId,
+        limit: 100 // Fetch up to 100 scenarios per request for faster pagination
       }
     });
+    
+    // Dismiss the loading toast
+    toast.dismiss(loadingToast);
     
     if (error) {
       console.error("Supabase Function Error:", error);
       toast.error("Failed to fetch scenarios. Please check your credentials.");
       throw error;
+    }
+    
+    // If we have scenarios data, show success with count
+    if (data && data.scenarios) {
+      toast.success(`Successfully fetched ${data.scenarios.length} scenarios`);
     }
     
     return data;

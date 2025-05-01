@@ -31,14 +31,17 @@ const ScenarioSelector = ({
 
   const filteredScenarios = scenarios.filter(scenario => 
     scenario.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    scenario.description.toLowerCase().includes(searchQuery.toLowerCase())
+    scenario.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div>
       <h2 className="text-xl font-medium mb-4">Select a Scenario</h2>
       <p className="text-gray-500 mb-6">
-        We found {scenarios.length} scenario{scenarios.length !== 1 ? 's' : ''} with webhook interfaces. Select one to convert to OpenAPI.
+        {isLoading 
+          ? "Fetching all available scenarios. This might take a moment..." 
+          : `Found ${scenarios.length} scenario${scenarios.length !== 1 ? 's' : ''} with webhook interfaces. Select one to convert to OpenAPI.`
+        }
       </p>
 
       <div className="relative mb-4">
@@ -51,7 +54,16 @@ const ScenarioSelector = ({
         />
       </div>
 
-      {filteredScenarios.length === 0 ? (
+      {isLoading ? (
+        <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-md">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+            <p className="text-gray-500 mt-4">Loading scenarios...</p>
+          </div>
+        </div>
+      ) : filteredScenarios.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-md">
           <p className="text-gray-500">No scenarios found matching your search</p>
         </div>

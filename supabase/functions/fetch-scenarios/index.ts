@@ -13,42 +13,68 @@ serve(async (req) => {
   }
   
   try {
-    const { baseUrl, apiKey, teamId, organizationId } = await req.json();
+    const { baseUrl, apiKey, teamId, organizationId, limit = 100 } = await req.json();
     
     if (!baseUrl || !apiKey) {
       throw new Error("Missing required parameters");
     }
     
     const url = new URL(baseUrl);
+    let allScenarios = [];
+    let hasMore = true;
+    let offset = 0;
     
-    // Prepare query parameters
-    const queryParams = new URLSearchParams();
-    if (teamId) {
-      queryParams.append("teamId", teamId);
-    }
-    if (organizationId) {
-      queryParams.append("organizationId", organizationId);
-    }
-    
-    console.log("Fetching from URL:", `${url.origin}/api/v2/scenarios${queryParams.toString() ? '?' + queryParams.toString() : ''}`);
-    
-    const response = await fetch(`${url.origin}/api/v2/scenarios${queryParams.toString() ? '?' + queryParams.toString() : ''}`, {
-      headers: {
-        Authorization: `Token ${apiKey}`,
-        'Content-Type': 'application/json'
+    // Continue fetching until we have all scenarios
+    while (hasMore) {
+      // Prepare query parameters
+      const queryParams = new URLSearchParams();
+      if (teamId) {
+        queryParams.append("teamId", teamId);
       }
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("API Error:", response.status, errorText);
-      throw new Error(`Failed to fetch scenarios: ${response.statusText}`);
+      if (organizationId) {
+        queryParams.append("organizationId", organizationId);
+      }
+      
+      // Add pagination parameters
+      queryParams.append("pg[limit]", limit.toString());
+      queryParams.append("pg[offset]", offset.toString());
+      queryParams.append("pg[sortBy]", "proprietal");
+      queryParams.append("pg[sortDir]", "desc");
+      
+      const apiUrl = `${url.origin}/api/v2/scenarios${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      console.log("Fetching from URL:", apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Token ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error:", response.status, errorText);
+        throw new Error(`Failed to fetch scenarios: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Add scenarios from this page to our collection
+      if (data.scenarios && data.scenarios.length > 0) {
+        allScenarios = [...allScenarios, ...data.scenarios];
+        offset += data.scenarios.length;
+        
+        // If we received fewer scenarios than the limit, we've reached the end
+        hasMore = data.scenarios.length === parseInt(limit.toString());
+      } else {
+        hasMore = false;
+      }
     }
     
-    const data = await response.json();
+    console.log(`Total scenarios fetched: ${allScenarios.length}`);
     
     return new Response(
-      JSON.stringify(data),
+      JSON.stringify({ scenarios: allScenarios }),
       { 
         headers: { 
           ...corsHeaders, 
