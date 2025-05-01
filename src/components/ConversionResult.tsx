@@ -141,7 +141,15 @@ const ConversionResult = ({ scenario, openApiSpec, onReset }: ConversionResultPr
           <li>Import this OpenAPI specification into your API management tool</li>
           <li>Use it to document your Make scenarios as REST APIs</li>
           <li>Test the API directly using the generated spec</li>
+          <li><strong>Authorization header format:</strong> When making API calls, use the format <code>Token YOUR_API_KEY</code> in the Authorization header</li>
         </ul>
+        <div className="mt-3 p-2 bg-blue-100 rounded border border-blue-200">
+          <p className="text-xs text-blue-800 font-medium mb-1">Important Authentication Note:</p>
+          <p className="text-xs text-blue-700">
+            When configuring your API client, set the Authorization header to <code>Token</code> followed by your API key.
+            For example: <code>Authorization: Token abcd1234...</code>
+          </p>
+        </div>
       </div>
     </div>
   );
