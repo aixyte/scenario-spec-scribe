@@ -51,17 +51,12 @@ serve(async (req) => {
   } catch (error) {
     console.error("Edge function error:", error);
     
-    // Return mock data in case of error for development
+    // Return empty interface structure instead of mock data
     return new Response(
       JSON.stringify({ 
         interface: {
-          input: [
-            { name: "text", type: "text", label: "Input Text", required: true },
-            { name: "number", type: "number", label: "Input Number" }
-          ],
-          output: [
-            { name: "result", type: "text", label: "Result" }
-          ]
+          input: [],
+          output: []
         }
       }),
       { 
