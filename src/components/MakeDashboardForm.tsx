@@ -78,6 +78,12 @@ const MakeDashboardForm = ({ onSubmit, isLoading }: MakeDashboardFormProps) => {
         Enter your Make dashboard URL and API key to fetch your scenarios.
       </p>
 
+      <Alert className="mb-4 bg-amber-50 border-amber-200">
+        <AlertDescription className="text-amber-800">
+          Note: This app uses a CORS proxy to connect to the Make.com API. In a production environment, you would need to set up a backend service to handle API requests securely.
+        </AlertDescription>
+      </Alert>
+
       {error && (
         <Alert variant="destructive" className="mb-4">
           <AlertDescription>{error}</AlertDescription>
