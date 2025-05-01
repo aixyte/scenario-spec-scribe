@@ -7,6 +7,7 @@ export const generateOpenApiSpec = (
   credentials: MakeCredentials
 ) => {
   const apiUrl = new URL(credentials.baseUrl);
+  const scenarioId = scenario.id;
   
   return {
     openapi: '3.0.0',
@@ -19,18 +20,10 @@ export const generateOpenApiSpec = (
       url: `${apiUrl.origin}/api/v2`
     }],
     paths: {
-      [`/scenarios/{scenarioId}/run`]: {
+      [`/scenarios/${scenarioId}/run`]: {
         post: {
           summary: `Run scenario ${scenario.name}`,
-          parameters: [
-            { 
-              name: 'scenarioId', 
-              in: 'path', 
-              schema: { type: 'integer' }, 
-              required: true,
-              description: 'The ID of the scenario to run'
-            }
-          ],
+          description: `Execute the "${scenario.name}" scenario with ID ${scenarioId}`,
           requestBody: {
             content: {
               'application/json': {
@@ -62,7 +55,7 @@ export const generateOpenApiSpec = (
                     acc[field.name] = field.default || getDefaultValueForType(field.type);
                     return acc;
                   }, {}),
-                  responsive: false
+                  responsive: true
                 }
               }
             },
