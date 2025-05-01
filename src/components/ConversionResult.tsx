@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink } from "lucide-react";
 
 interface ConversionResultProps {
   scenario: any;
@@ -136,19 +136,52 @@ const ConversionResult = ({ scenario, openApiSpec, onReset }: ConversionResultPr
       </div>
 
       <div className="mt-6 p-4 bg-blue-50 rounded-md border border-blue-100">
-        <h3 className="text-sm font-medium text-blue-800 mb-2">Next Steps</h3>
-        <ul className="text-xs text-blue-700 space-y-1 list-disc pl-4">
-          <li>Import this OpenAPI specification into your API management tool</li>
-          <li>Use it to document your Make scenarios as REST APIs</li>
-          <li>Test the API directly using the generated spec</li>
-          <li><strong>Authorization header format:</strong> When making API calls, use the format <code>Token YOUR_API_KEY</code> in the Authorization header</li>
-        </ul>
-        <div className="mt-3 p-2 bg-blue-100 rounded border border-blue-200">
-          <p className="text-xs text-blue-800 font-medium mb-1">Important Authentication Note:</p>
-          <p className="text-xs text-blue-700">
-            When configuring your API client, set the Authorization header to <code>Token</code> followed by your API key.
-            For example: <code>Authorization: Token abcd1234...</code>
+        <h3 className="text-sm font-medium text-blue-800 mb-3">Next Steps</h3>
+        
+        <div className="space-y-3">
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0 bg-blue-100 rounded-full p-1">
+              <span className="flex h-5 w-5 items-center justify-center font-semibold text-xs text-blue-800">1</span>
+            </div>
+            <div>
+              <p className="text-sm text-blue-700">Import this OpenAPI specification into your API management tool</p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0 bg-blue-100 rounded-full p-1">
+              <span className="flex h-5 w-5 items-center justify-center font-semibold text-xs text-blue-800">2</span>
+            </div>
+            <div>
+              <p className="text-sm text-blue-700">Use it to document your Make scenarios as REST APIs</p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0 bg-blue-100 rounded-full p-1">
+              <span className="flex h-5 w-5 items-center justify-center font-semibold text-xs text-blue-800">3</span>
+            </div>
+            <div>
+              <p className="text-sm text-blue-700">Test the API directly using the generated spec</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-4 p-3 bg-blue-100 rounded-md border border-blue-200">
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="flex-shrink-0 bg-blue-200 rounded-full p-1">
+              <span className="flex h-5 w-5 items-center justify-center font-semibold text-xs text-blue-800">!</span>
+            </div>
+            <p className="text-sm font-medium text-blue-800">Important Authentication Note</p>
+          </div>
+          
+          <p className="text-sm text-blue-700 pl-7">
+            When configuring your API client, set the Authorization header to <code className="bg-blue-50 px-1 rounded">Token</code> followed by your API key:
           </p>
+          
+          <div className="mt-2 p-2 bg-blue-50 rounded font-mono text-xs text-blue-800 pl-7">
+            Authorization: Token abcd1234...
+          </div>
         </div>
       </div>
     </div>
