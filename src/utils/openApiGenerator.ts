@@ -18,7 +18,6 @@ export const generateOpenApiSpec = (
     
     // Set appropriate schema based on type
     if (input.type === 'dynamicCollection') {
-      // Dynamic collections should be represented as objects, not arrays
       schemas[schemaName] = {
         type: 'object',
         description: input.help || `${input.label || input.name} parameter`,
@@ -47,7 +46,6 @@ export const generateOpenApiSpec = (
     
     // Set appropriate schema based on type
     if (output.type === 'dynamicCollection') {
-      // Dynamic collections should be represented as objects, not arrays
       schemas[schemaName] = {
         type: 'object',
         description: output.help || `${output.label || output.name} output`,
@@ -110,6 +108,7 @@ export const generateOpenApiSpec = (
     }
   });
   
+  // Always use OpenAPI 3.1.0 and ensure scenarioId is used directly in the path
   return {
     openapi: '3.1.0',
     info: { 
