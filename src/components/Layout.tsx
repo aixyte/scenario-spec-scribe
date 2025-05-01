@@ -24,8 +24,11 @@ const Layout = ({ children, title, subtitle }: LayoutProps) => {
       </main>
       
       <footer className="bg-white border-t py-6 mt-auto">
-        <div className="container mx-auto px-4 text-center text-gray-500">
-          <p>Make Scenario to OpenAPI Converter © 2025</p>
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-500">Make Scenario to OpenAPI Converter © 2025</p>
+          <p className="mt-2 text-sm text-gray-500">
+            You can check the <a href="https://github.com/aixyte/scenario-spec-scribe" className="text-blue-500 hover:text-blue-700 underline" target="_blank" rel="noopener noreferrer">service source code here on GitHub</a> to validate yourself if this service can be trusted with an API Key.
+          </p>
         </div>
       </footer>
     </div>
