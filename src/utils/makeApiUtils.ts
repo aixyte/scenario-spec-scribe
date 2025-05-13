@@ -47,7 +47,7 @@ export const fetchScenarios = async (
     // Show a loading toast for potentially longer operation
     const loadingToast = toast.loading("Fetching all scenarios. This might take a moment...");
     
-    const { data, error } = await supabase.functions.invoke("fetch-scenarios", {
+    const { data, error, status } = await supabase.functions.invoke("fetch-scenarios", {
       body: {
         baseUrl,
         apiKey,
@@ -62,19 +62,25 @@ export const fetchScenarios = async (
     
     if (error) {
       console.error("Supabase Function Error:", error);
-      toast.error("Failed to fetch scenarios. Please check your credentials.");
+      console.error("Status code:", status);
+      toast.error(`Failed to fetch scenarios: ${error.message || "Unknown error"}`);
       throw error;
     }
     
     // If we have scenarios data, show success with count
     if (data && data.scenarios) {
       toast.success(`Successfully fetched ${data.scenarios.length} scenarios`);
+      return data;
     }
     
-    return data;
-  } catch (error) {
+    // If no error but also no data
+    console.warn("No scenarios data returned");
+    toast.warning("No scenarios found. Please check your credentials and organization ID.");
+    return { scenarios: [] };
+    
+  } catch (error: any) {
     console.error("Fetch scenarios error:", error);
-    toast.error("Failed to fetch scenarios. Please check your credentials.");
+    toast.error(`Network error: ${error.message || "Could not connect to server"}`);
     throw error;
   }
 };
@@ -87,7 +93,9 @@ export const fetchScenarioInterface = async (
   try {
     console.log("Fetching scenario interface via Supabase Edge Function");
     
-    const { data, error } = await supabase.functions.invoke("fetch-scenario-interface", {
+    const loadingToast = toast.loading("Fetching scenario interface...");
+    
+    const { data, error, status } = await supabase.functions.invoke("fetch-scenario-interface", {
       body: {
         baseUrl,
         apiKey,
@@ -95,16 +103,25 @@ export const fetchScenarioInterface = async (
       }
     });
     
+    toast.dismiss(loadingToast);
+    
     if (error) {
       console.error("Supabase Function Error:", error);
-      toast.error("Failed to fetch scenario interface. Please try again.");
+      console.error("Status code:", status);
+      toast.error(`Failed to fetch scenario interface: ${error.message || "Unknown error"}`);
       throw error;
     }
     
+    if (!data || !data.interface) {
+      console.warn("No interface data returned");
+      toast.warning("This scenario doesn't have an interface defined.");
+      return { interface: { input: [], output: [] } };
+    }
+    
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Fetch scenario interface error:", error);
-    toast.error("Failed to fetch scenario interface. Please try again.");
+    toast.error(`Network error: ${error.message || "Could not connect to server"}`);
     throw error;
   }
 };

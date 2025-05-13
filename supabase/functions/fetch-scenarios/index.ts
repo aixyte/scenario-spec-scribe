@@ -16,7 +16,7 @@ serve(async (req) => {
     const { baseUrl, apiKey, teamId, organizationId, limit = 100 } = await req.json();
     
     if (!baseUrl || !apiKey) {
-      throw new Error("Missing required parameters");
+      throw new Error("Missing required parameters: baseUrl or apiKey");
     }
     
     const url = new URL(baseUrl);
@@ -54,7 +54,7 @@ serve(async (req) => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("API Error:", response.status, errorText);
-        throw new Error(`Failed to fetch scenarios: ${response.statusText}`);
+        throw new Error(`Failed to fetch scenarios: ${response.status} ${response.statusText} - ${errorText}`);
       }
       
       const data = await response.json();
@@ -85,20 +85,14 @@ serve(async (req) => {
   } catch (error) {
     console.error("Edge function error:", error);
     
-    // Return mock data in case of error for development
+    // Return empty array instead of mock data
     return new Response(
       JSON.stringify({ 
-        scenarios: [
-          {
-            id: 12345,
-            name: "Example Scenario (Mock)",
-            description: "This is mock data because the API request failed",
-            scheduling: { type: "on-demand" }
-          }
-        ]
+        scenarios: [],
+        error: error.message || "Unknown error occurred"
       }),
       { 
-        status: 200,
+        status: 500,
         headers: { 
           ...corsHeaders, 
           'Content-Type': 'application/json' 

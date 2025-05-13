@@ -16,7 +16,7 @@ serve(async (req) => {
     const { baseUrl, apiKey, scenarioId } = await req.json();
     
     if (!baseUrl || !apiKey || !scenarioId) {
-      throw new Error("Missing required parameters");
+      throw new Error("Missing required parameters: baseUrl, apiKey or scenarioId");
     }
     
     const url = new URL(baseUrl);
@@ -34,7 +34,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("API Error:", response.status, errorText);
-      throw new Error(`Failed to fetch scenario interface: ${response.statusText}`);
+      throw new Error(`Failed to fetch scenario interface: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
     const data = await response.json();
@@ -57,10 +57,11 @@ serve(async (req) => {
         interface: {
           input: [],
           output: []
-        }
+        },
+        error: error.message || "Unknown error occurred"
       }),
       { 
-        status: 200,
+        status: 500,
         headers: { 
           ...corsHeaders, 
           'Content-Type': 'application/json' 
